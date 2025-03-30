@@ -9,6 +9,7 @@ install.packages("tidyr")
 install.packages("viridis")
 install.packages("forcats")
 install.packages("plm")
+install.packages("rstudioapi")
 
 library(purrr)
 library(data.table)
@@ -22,6 +23,7 @@ library(tidyr)
 library(viridis)
 library(forcats)
 library(plm)
+library(rstudioapi)
 
 #to be able to run our code and download the files you will need, you have top 
 #run the code line below and in the console type 1 and then authorise the access 
@@ -70,6 +72,9 @@ file_names_tfp <- files_in_folder_tfp[["name"]]
 walk2(file_ids_tfp, file_names_tfp, ~ drive_download(as_id(.x), path = file.path(data_dir, .y)))
 
 rm(desktop_path, file_ids, file_names,files_in_folder,folder_id,file_ids_tfp,file_names_tfp,folder_id_tfp,files_in_folder_tfp)
+
+setwd(data_dir)
+rstudioapi::filesPaneUpdate()
 
 #---code for patents excel files ----------------------------------------------------
 
@@ -126,9 +131,9 @@ summary_table_OCDE <- summary_table_OCDE %>%
   mutate(ctry_code = recode(ctry_code, !!!code_mapping))
 
 output_file_OCDE <- file.path(data_dir, "data_patents_OCDE.xlsx")
-write_xlsx(summary_table_OCDE, output_file)
+write_xlsx(summary_table_OCDE, output_file_OCDE)
 
-print(paste("excel file about patents and OCDE saved here : ", output_file))
+print(paste("excel file about patents and OCDE saved here : ", output_file_OCDE))
 
 countries_to_keep_G7 <- c("CA","FR", "DE","IT", "JP", "GB", "US")
 
@@ -277,7 +282,7 @@ fichier_patents_G7<- file.path(data_dir, "data_patents_G7.xlsx")
 data_patents_G7<- read_excel(fichier_patents_G7, sheet =1)
 
 merged_data_G7 <- data_patents_G7 %>%
-  inner_join(data_filtered, by = c("ctry_code" = "ctry_code", "prio_year" = "prio_year"))
+  inner_join(data_filtered_OCDE_CN, by = c("ctry_code" = "ctry_code", "prio_year" = "prio_year"))
 
 merged_data_G7 <- merged_data_G7 %>%
   rename(nbr_patents = nb_pct_nbr) %>%
