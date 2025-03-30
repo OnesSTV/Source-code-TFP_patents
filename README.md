@@ -1,7 +1,7 @@
 # Source-code-TFP_patents
 
 Before you start running the code, you need to install the necessary packages and load the libraries.
-Then you'll need to run the first line called "drive_auth()", in the console you will have to type 1 and choose tha google account you want to use
+Then you'll need to run the first line called "drive_auth()", in the console you will have to type 1 and choose the google account you want to use
 
 
 
