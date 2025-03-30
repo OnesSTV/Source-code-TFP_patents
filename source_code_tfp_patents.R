@@ -8,6 +8,7 @@ install.packages("googledrive")
 install.packages("tidyr")
 install.packages("viridis")
 install.packages("forcats")
+install.packages("plm")
 
 library(purrr)
 library(data.table)
