@@ -1,5 +1,5 @@
 # Source-code-TFP_patents
 
-avant de commencer à run le code, il vous faut installer les packages nécessaire et de charger les library.
-Ensuite vous devrez run la première ligne called "drive_auth()" et accepter tidyverse à acceder à votre compte google. ce sera la première ligne qui sera par défault décocher.
-Si vous n'acceptez pas cette ligne vous ne pourrez téléchargé les documents nécessaires pour utiliser le code et créer les données.
+Before you start running the code, you need to install the necessary packages and load the libraries.
+Then you'll need to run the first line called "drive_auth()" and allow Tidyverse to access your Google account. This will be the first line that will be unchecked by default.
+If you don't accept this line, you won't be able to download the documents needed to use the code and create the data.
