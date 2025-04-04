@@ -87,7 +87,9 @@ if (all(existing_files)) {
 } else {
   cat("Some files are missing. Downloading...\n")
 }  
-  
+
+# code above checks if all the files needed are loaded and installed
+
 fichier_1 <- file.path(data_dir, "202401_PCT_Inv_reg.txt")
 fichier_2 <- file.path(data_dir, "202401_PCT_IPC.txt")
 
@@ -102,11 +104,12 @@ str(data_2)
 data_unique_1 <- unique(data_1, by = "pct_nbr")
 data_unique_2 <- unique(data_2, by = "pct_nbr")
 
-merged_data_unique <- merge(data_unique_1, data_unique_2, by = "pct_nbr", all = TRUE)
+merged_data_unique <- merge(data_unique_1, data_unique_2, by = "pct_nbr", all = TRUE) #take only the first appearance of the "pct_nbr" 
 
-summary_table <- merged_data_unique[prio_year >= 1990 & prio_year <= 2019, 
-                                    .(nb_pct_nbr = uniqueN(pct_nbr)), 
+summary_table <- merged_data_unique[prio_year >= 1990 & prio_year <= 2019, #keep only the observations from 1990 to 2019
+                                    .(nb_pct_nbr = uniqueN(pct_nbr)),    #then merge the two data tables 
                                     by = .(ctry_code, prio_year)]
+
 
 summary_table <- summary_table[order(ctry_code, prio_year)]
 
@@ -127,13 +130,15 @@ code_mapping <- c(
   SE = "SWE", CH = "CHE", TR = "TUR", GB = "GBR", US = "USA"
 )
 
+# Code above is made to keep only the countries from the OECD 
+
 summary_table_OCDE <- summary_table_OCDE %>%
   mutate(ctry_code = recode(ctry_code, !!!code_mapping))
 
-output_file_OCDE <- file.path(data_dir, "data_patents_OCDE.xlsx")
+output_file_OCDE <- file.path(data_dir, "data_patents_OCDE.xlsx")  #create the excel file for the merged data about patents in the OECD
 write_xlsx(summary_table_OCDE, output_file_OCDE)
 
-print(paste("excel file about patents and OCDE saved here : ", output_file_OCDE))
+print(paste("excel file about patents and OECD saved here : ", output_file_OCDE))
 
 countries_to_keep_G7 <- c("CA","FR", "DE","IT", "JP", "GB", "US")
 
@@ -145,7 +150,7 @@ code_mapping_G7 <- c( CA = "CAN", FR = "FRA", DE = "DEU", IT = "ITA", JP = "JPN"
 summary_table_G7 <- summary_table_G7 %>%
   mutate(ctry_code = recode(ctry_code, !!!code_mapping_G7))
 
-output_file_G7 <- file.path(data_dir, "data_patents_G7.xlsx")
+output_file_G7 <- file.path(data_dir, "data_patents_G7.xlsx") #same but to create the merged data table for the G7 countries
 write_xlsx(summary_table_G7, output_file_G7)
 
 countries_to_keep_G7_CN <- c("CA","FR", "DE","IT", "JP", "GB", "US", "CN")
@@ -158,7 +163,7 @@ code_mapping_G7_CN <- c( CA = "CAN", FR = "FRA", DE = "DEU", IT = "ITA", JP = "J
 summary_table_G7_CN <- summary_table_G7_CN %>%
   mutate(ctry_code = recode(ctry_code, !!!code_mapping_G7_CN))
 
-output_file_G7_CN <- file.path(data_dir, "data_patents_G7_CN.xlsx")
+output_file_G7_CN <- file.path(data_dir, "data_patents_G7_CN.xlsx") #same but including China
 write_xlsx(summary_table_G7_CN, output_file_G7_CN)
 
 
@@ -182,7 +187,7 @@ code_mapping_OECD_CN <- c(
 summary_table_OECD_CN <- summary_table_OECD_CN %>%
   mutate(ctry_code = recode(ctry_code, !!!code_mapping_OECD_CN))
 
-output_file_OECD_CN <- file.path(data_dir, "data_patents_OECD_CN.xlsx")
+output_file_OECD_CN <- file.path(data_dir, "data_patents_OECD_CN.xlsx") #last are the OECD countries with China observations
 write_xlsx(summary_table_OECD_CN, output_file_OECD_CN)
 
 #create tfp excel files---------------------------------------------------------
@@ -196,6 +201,8 @@ if (all(existing_files_tfp)) {
 } 
 
 rm(existing_files_tfp)
+
+# code above checks if all the files needed are loaded and installed
 
 fichier_TFP<- file.path(data_dir, "pwt1001.xlsx")
 
@@ -319,6 +326,8 @@ merged_data_G7 <- read_xlsx(fichier_data_merged_G7, sheet = 1)
 
 
 #Evolution of the total number of patents per year(OECD & CHN)---------------------------------
+
+
 data_summary_total <- merged_data_OCDE_CN %>%
   group_by(prio_year) %>%
   summarise(total_patents = sum(nbr_patents, na.rm = TRUE))%>%
@@ -344,6 +353,7 @@ ggplot(data_summary_total, aes(x = prio_year, y = total_patents)) +
 
 
 #Evolution of the total number of patents per year(OECD)-----------------------------------------------------------------------------------------------
+
 
 data_summary_OCDE <- merged_data_OCDE %>%
   group_by(prio_year) %>%
@@ -372,6 +382,7 @@ ggplot(data_summary_OCDE, aes(x = prio_year, y = total_patents)) +
 
 #difference in number of patents between only OCDE and OECD + CHN-------------------------------------------------------------------------
 
+
 data_combined <- bind_rows(data_summary_total, data_summary_OCDE)
 
 ggplot(data_combined, aes(x = prio_year, y = total_patents, color = Group)) +
@@ -396,6 +407,7 @@ ggplot(data_combined, aes(x = prio_year, y = total_patents, color = Group)) +
 
 
 #difference in number of patents between G7 and G7 + CHN--------------------------------------------------------------------
+
 
 data_summary_G7 <- merged_data_G7 %>%
   group_by(prio_year) %>%
@@ -432,6 +444,7 @@ ggplot(data_combined_G7, aes(x = prio_year, y = total_patents, color = Group)) +
 
 #difference between each country of the OECD + CHN in number of patents(emphasize on CHN)----------------------------------------------------------------------
 
+
 countries_G7 <- c("CAN", "FRA", "DEU", "ITA", "JPN", "GBR", "USA")
 merged_data_G7_CN <- merged_data_G7_CN %>%
   mutate(Group = ifelse(ctry_code %in% countries_G7, "G7", "China"))
@@ -463,6 +476,8 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code,
 
 
 #difference between each country of the OECD + CHN in number of patents (emphasize on CHN and US)-----------------------------------------------------------------------------------------------
+
+
 countries_G7 <- c("CAN", "FRA", "DEU", "ITA", "JPN", "GBR")
 
 merged_data_G7_CN <- merged_data_G7_CN %>%
@@ -497,6 +512,8 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code,
 
 
 #difference between each country of the OECD + CHN in number of patents (emphasize on JPN)----------------------------------------------------------------
+
+
 countries_G7 <- c("CAN", "FRA", "DEU", "ITA","CHN", "GBR", "USA")
 merged_data_G7_CN <- merged_data_G7_CN %>%
   mutate(Group = ifelse(ctry_code %in% countries_G7, "G7", "China"))
@@ -553,6 +570,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code, grou
 
 #Evolution of TFP(RTFPNA) by country (G7 & China) per year (change in color and legend for better understanding)-----
 
+
 color_palette <- brewer.pal(8, "Set2")
 
 ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code, group = ctry_code)) +
@@ -580,6 +598,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code, grou
 
 #Evolution of TFP(RTFPNA) by country (G7 & China) per year (focus on the period between 2008 and 2019) -------------------------
 
+
 ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code, group = ctry_code)) +
   geom_line(aes(linetype = ctry_code), size = 1) +  
   geom_point(size = 3) +  
@@ -606,6 +625,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code, grou
 
 #Evolution in the number of patents by country (G7 & China) per year (change in color for better understanding) ----------
 
+
 ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code, group = ctry_code)) +
   geom_line(aes(linetype = ctry_code), size = 1) +  
   geom_point(size = 3) +  
@@ -630,6 +650,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code,
 
 
 #Evolution in the number of patents by country (G7 & China) per year (focus on the period between 2008 and 2019)-------------- 
+
 
 ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code, group = ctry_code)) +
   geom_line(aes(linetype = ctry_code), size = 1) +  
@@ -657,6 +678,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = nbr_patents, color = ctry_code,
 
 #different graph for each country of the G7 + CHN (TFP)-------------------------
 
+
 ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code)) +
   geom_line(color = "black", size = 1) +  
   geom_point(color = "black", size = 2) +
@@ -682,6 +704,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year, y = rtfpna, color = ctry_code)) +
 
 
 #different graph for each country of the G7 + CHN (relationship between TFP and number of patents)-----------
+
 
 ggplot(merged_data_G7_CN, aes(x = prio_year)) +
   geom_line(aes(y = rtfpna, color = "TFP (RTFPNA)"), size = 1.2)+
@@ -712,7 +735,7 @@ ggplot(merged_data_G7_CN, aes(x = prio_year)) +
   facet_wrap(~ ctry_code, scales = "free_y", labeller = labeller(ctry_code = label_value))
 
 
-#statistic analysis------------------------------------------------------------
+# statistical analysis------------------------------------------------------------
 
 #if you were not able to run the code before, here is a code to download the data needed for the following steps
 
@@ -772,8 +795,6 @@ corr_by_country <- data_correlation %>%
   summarise(correlation = cor(rtfpna, nbr_patents, use = "complete.obs"))
 
 print(corr_by_country)
-
-
 
 
 data_1990_2008 <- data_correlation %>%
@@ -847,6 +868,7 @@ ggplot(data_corr_all_2, aes(x = ctry_code, y = correlation, fill = Period)) +
 
 
 
+#test to make a regression and understand the correlation between IPC and tfp 
 
 
 
@@ -881,7 +903,7 @@ model_2 <- lm(rtfpna ~ nbr_patents, merged_data_G7_CN = data_2)
 summary(model_1)
 summary(model_2)
 
-#relation between TFP and IPC (sector of impact of the patents)---------------------------------------------------------------------------
+#try to make relation between TFP and IPC (sector of impact of the patents)---------------------------------------------------------------------------
 
 
 merged_data_IPC_class<- merge(data_1,data_2, by="pct_nbr", all= TRUE, allow.cartesian = TRUE)
